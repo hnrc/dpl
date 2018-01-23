@@ -1,6 +1,6 @@
 # Dpl [![Build Status](https://travis-ci.org/travis-ci/dpl.svg?branch=master)](https://travis-ci.org/travis-ci/dpl) [![Code Climate](https://codeclimate.com/github/travis-ci/dpl.png)](https://codeclimate.com/github/travis-ci/dpl) [![Gem Version](https://badge.fury.io/rb/dpl.png)](http://badge.fury.io/rb/dpl) [![Coverage Status](https://coveralls.io/repos/travis-ci/dpl/badge.svg?branch=master&service=github)](https://coveralls.io/github/travis-ci/dpl?branch=master)
 
-## Writing and Testing a New Deployment Provider and new functionalities
+## Writing and Testing a New Deployment Provider and new functionality
 
 See [TESTING.md](TESTING.md).
 
@@ -13,6 +13,7 @@ Dpl supports the following providers:
 * [AWS CodeDeploy](#aws-codedeploy)
 * [AWS Elastic Beanstalk](#elastic-beanstalk)
 * [AWS OpsWorks](#opsworks)
+* [AWS S3](#s3)
 * [Azure Web Apps](#azure-web-apps)
 * [Bintray](#bintray)
 * [BitBalloon](#bitballoon)
@@ -22,6 +23,7 @@ Dpl supports the following providers:
 * [Chef Supermarket](#chef-supermarket)
 * [Cloud 66](#cloud-66)
 * [Cloud Foundry](#cloud-foundry)
+* [Convox](#convox)
 * [Deis](#deis)
 * [Divshot.io](#divshotio)
 * [Engine Yard](#engine-yard)
@@ -43,7 +45,6 @@ Dpl supports the following providers:
 * [PyPi](#pypi)
 * [Rackspace Cloud Files](#rackspace-cloud-files)
 * [RubyGems](#rubygems)
-* [S3](#s3)
 * [Scalingo](#scalingo)
 * [Script](#script)
 * [Surge.sh](#surgesh)
@@ -279,9 +280,13 @@ For authentication you can also use Travis CI secure environment variable:
 
 * **user**: PyPI Username.
 * **password**: PyPI Password.
-* **server**: Optional. Only required if you want to release to a different index. Follows the form of 'https://mypackageindex.com/index'. Defaults to 'https://pypi.python.org/pypi'.
+* **server**: Optional. Only required if you want to release to a different index. Follows the form of 'https://mypackageindex.com/index'. Defaults to 'https://upload.pypi.org/legacy/'.
 * **distributions**: Optional. A space-separated list of distributions to be uploaded to PyPI. Defaults to 'sdist'.
-* **skip_upload_docs**: Optional. When set to `true`, documentation is not uploaded. Defaults to `false`.
+* **skip_upload_docs**: Optional. When set to `false`, documentation is uploaded. Defaults to `true`.
+  Note that upload.pypi.org does not support document uploading. If you set
+  this option to `false`, your deployment fails, unless you specify the server
+  that supports this option. See https://github.com/travis-ci/dpl/issues/660
+  for details.
 * **docs_dir**: Optional. A path to the directory to upload documentation from. Defaults to 'build/docs'
 
 #### Environment variables:
@@ -477,6 +482,22 @@ You first need to create an [Atlas account](https://atlas.hashicorp.com/account/
 #### Examples:
 
     dpl --provider=divshot --api-key=<api-key> --environment=<environment>
+
+### Convox:
+
+#### Options:
+
+* **rack**: Convox Rack name.
+* **app**: Convox App name.
+* **console_key**: Convox Console API key.
+* **console_host**: Optional. Convox Console host, defaults to `console.convox.com`.
+* **description**: Optional. Build description
+* **copy_to_app**: Optional. After successful build, copy the build to this app.
+* **copy_to_rack**: Optional. Used together with `copy_to_app` to copy the build to an app in another rack.
+
+#### Examples:
+
+    dpl --provider=convox --rack=<rack name> --app=<app name>
 
 ### Cloud Foundry:
 
@@ -710,6 +731,17 @@ For accounts using two factor authentication, you have to use an oauth token as 
  * **memory_size**: Optional. The amount of memory in MB to allocate to this Lambda. Defaults to 128.
  * **runtime**: Optional. The Lambda runtime to use. Defaults to `node`.
  * **publish**: If `true`, a [new version](http://docs.aws.amazon.com/lambda/latest/dg/versioning-intro.html#versioning-intro-publish-version) of the Lambda function will be created instead of replacing the code of the existing one.
+ * **subnet_ids**: Optional. List of subnet IDs to be added to the function. Needs the `ec2:DescribeSubnets` and `ec2:DescribeVpcs` permission for the user of the access/secret key to work.
+ * **security_group_ids**: Optional. List of security group IDs to be added to the function. Needs the `ec2:DescribeSecurityGroups` and `ec2:DescribeVpcs` permission for the user of the access/secret key to work.
+ * **dead_letter_arn**: Optional. ARN to an SNS or SQS resource used for the dead letter queue. [More about DLQs here](https://docs.aws.amazon
+ .com/lambda/latest/dg/dlq.html).
+ * **tracing_mode**: Optional. "Active" or "PassThrough" only. Default is "PassThrough".  Needs the `xray:PutTraceSegments` and `xray:PutTelemetryRecords` on the role for this to work. [More on 
+ Active Tracing here](https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html).
+ * **environment_variables**: Optional. List of Environment Variables to add to the function, needs to be in the format of `KEY=VALUE`. Can be encrypted for added security.
+ * **kms_key_arn**: Optional. KMS key ARN to use to encrypt `environment_variables`.
+ * **function_tags**: Optional. List of tags to add to the function, needs to be in the format of `KEY=VALUE`. Can be encrypted for added security.
+ 
+ For a list of all [permissions for Lambda, please refer to the documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-api-permissions-ref.html).
 
 #### Examples:
 
@@ -877,10 +909,11 @@ In order to use this provider, please make sure you have the [App Engine Admin A
 
 * **token**: Your Firebase CI access token (generate with `firebase login:ci`)
 * **project**: Deploy to a different Firebase project than specified in your `firebase.json` (e.g. `myapp-staging`)
+* **message**: Optional. The message describing this deploy.
 
 #### Examples:
 
-    dpl --provider=firebase --token=<token> --project=<project>
+    dpl --provider=firebase --token=<token> --project=<project> --message=<message>
 
 
 
