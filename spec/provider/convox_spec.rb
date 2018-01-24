@@ -31,6 +31,10 @@ describe DPL::Provider::Convox do
   end
 
   describe "#push_app" do
+    before do
+      allow(provider.context.env).to receive(:[]).with('TRAVIS_COMMIT').and_return('commit-sha')
+    end
+
     it 'should include description if specified' do
       provider.options.update(:description => 'something')
       expect(provider.context).to receive(:shell).with(
@@ -42,7 +46,7 @@ describe DPL::Provider::Convox do
     it 'should copy build to another app in the same rack' do
       provider.options.update(:copy_to_app => 'another-app')
       expect(provider.context).to receive(:shell).with(
-        "convox deploy --app dummy-app --rack dummy-rack"
+        "convox deploy --app dummy-app --rack dummy-rack --description commit-sha"
       ).and_return(true)
       expect(provider.context).to receive(:shell).with(
         "convox builds export $(convox builds --app dummy-app --rack dummy-rack | awk 'NR==2 {print $1}') --app dummy-app --rack dummy-rack | convox builds import --app another-app --rack dummy-rack"
@@ -54,7 +58,7 @@ describe DPL::Provider::Convox do
       provider.options.update(:copy_to_app => 'another-app')
       provider.options.update(:copy_to_rack => 'another-rack')
       expect(provider.context).to receive(:shell).with(
-        "convox deploy --app dummy-app --rack dummy-rack"
+        "convox deploy --app dummy-app --rack dummy-rack --description commit-sha"
       ).and_return(true)
       expect(provider.context).to receive(:shell).with(
         "convox builds export $(convox builds --app dummy-app --rack dummy-rack | awk 'NR==2 {print $1}') --app dummy-app --rack dummy-rack | convox builds import --app another-app --rack another-rack"
