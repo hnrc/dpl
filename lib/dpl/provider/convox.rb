@@ -29,7 +29,7 @@ module DPL
 
       def push_app
         deploy_cmd = "convox deploy --app #{options[:app]} --rack #{options[:rack]}"
-        deploy_cmd << " --description #{options[:description]}" if options[:description]
+        deploy_cmd << " --description #{build_description}"
         error "Failed to deploy app" unless context.shell deploy_cmd
 
         if options[:copy_to_app]
@@ -39,6 +39,12 @@ module DPL
           copy_cmd << " | convox builds import --app #{options[:copy_to_app]} --rack #{copy_to_rack}"
           context.shell copy_cmd
         end
+      end
+
+      private
+
+      def build_description
+        options[:description] || sha
       end
 
     end
