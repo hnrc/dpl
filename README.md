@@ -2,7 +2,7 @@
 
 ## Writing and Testing a New Deployment Provider and new functionality
 
-See [TESTING.md](TESTING.md).
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## Supported Providers:
 Dpl supports the following providers:
@@ -536,11 +536,16 @@ You first need to create an [Atlas account](https://atlas.hashicorp.com/account/
 * **github-token**: GitHub oauth token with `repo` permission.
 * **repo**: Repo slug, defaults to current one.
 * **target-branch**: Branch to push force to, defaults to gh-pages.
+* **keep-history**: Optional, create incremental commit instead of doing push force, defaults to false.
+* **allow-empty-commit**: Optional, defaults to false. Enabled if only keep-history is true.
+* **committer-from-gh**: Optional, defaults to false. Allows to use token's owner name and email for commit. Overrides `email` and `name` options.
+* **verbose**: Optional, be verbose about internal steps, defaults to false.
 * **local-dir**: Directory to push to GitHub Pages, defaults to current.
 * **fqdn**: Optional, no default, sets a main domain for your website.
 * **project-name**: Defaults to fqdn or repo slug, used for metadata.
-* **email**: Optional, comitter info, defaults to deploy@travis-ci.org.
-* **name**: Optional, comitter, defaults to Deployment Bot.
+* **email**: Optional, committer info, defaults to deploy@travis-ci.org.
+* **name**: Optional, committer, defaults to Deployment Bot.
+* **deployment-file**: Optional, defaults to false, enables creation of deployment-info files
 
 #### Examples:
 
@@ -793,9 +798,6 @@ and your testers can start testing your app.
 * **api-key**: TestFairy API Key (https://app.testfairy.com/settings/) run "travis encrypt --add deploy.api-key" on your repo.
 * **app-file**: Path to the app file that will be generated after the build (APK/IPA).
 * **symbols-file**: Path to the symbols file.
-* **keystore-file**: Path to your keystore-file (must, only for android). http://docs.travis-ci.com/user/encrypting-files/
-* **storepass**: storepass (must, only for android).
-* **alias**: alias (must, only for android).
 * **testers-groups**: You can set a tester group to be notified about this build (group1,group1).
 * **notify**: If true, an email you a changelog will be sent to your users.
 * **auto-update**: If true, all the previous installations of this app will be automatically all upgraded to this version.
@@ -817,24 +819,25 @@ and your testers can start testing your app.
 
 #### Options:
 
-* **access-key-id**: AWS Access Key.
+* **access_key_id**: AWS Access Key.
 * **secret_access_key**: AWS Secret Access Key.
 * **application**: CodeDeploy Application Name.
 * **deployment_group**: CodeDeploy Deployment Group Name.
 * **revision_type**: CodeDeploy Revision Type (S3 or GitHub).
 * **commit_id**: Commit ID in case of GitHub.
 * **repository**: Repository Name in case of GitHub.
+* **bucket**: S3 bucket in case of S3.
 * **region**: AWS Availability Zone.
-* **wait-until-deployed**: Wait until the app is deployed and return the deployment status (Optional, Default false).
+* **wait_until_deployed**: Wait until the app is deployed and return the deployment status (Optional, Default false).
 
 #### Environment variables:
 
- * **AWS_ACCESS_KEY_ID**: AWS Access Key ID. Used if the `access-key-id` option is omitted.
- * **AWS_SECRET_ACCESS_KEY**: AWS Secret Key. Used if the `secret-access-key` option is omitted.
+ * **AWS_ACCESS_KEY_ID**: AWS Access Key ID. Used if the `access_key_id` option is omitted.
+ * **AWS_SECRET_ACCESS_KEY**: AWS Secret Key. Used if the `secret_access_key` option is omitted.
 
 #### Examples:
 
-    dpl --provider=codedeploy --access-key-id=<aws access key> --secret_access_key=<aws secret access key> --application=<application name> --deployment_group=<deployment group> --revision_type=<s3/github> --commit_id=<commit ID> --repository=<repo name> --region=<AWS availability zone> --wait-until-deployed=<true>
+    dpl --provider=codedeploy --access_key_id=<aws access key> --secret_access_key=<aws secret access key> --application=<application name> --deployment_group=<deployment group> --revision_type=<s3/github> --bucket=<bucket name> --commit_id=<commit ID> --repository=<repo name> --region=<AWS availability zone> --wait_until_deployed=<true>
 
 ### Scalingo:
 
