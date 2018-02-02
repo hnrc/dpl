@@ -37,7 +37,7 @@ module DPL
           copy_cmd = "convox builds export $(convox builds --app #{options[:app]} --rack #{options[:rack]}"
           copy_cmd << " | awk 'NR==2 {print $1}') --app #{options[:app]} --rack #{options[:rack]}"
           copy_cmd << " | convox builds import --app #{options[:copy_to_app]} --rack #{copy_to_rack}"
-          context.shell copy_cmd
+          error "Failed to copy build to app #{options[:copy_to_app]}" unless context.shell copy_cmd
         end
       end
 
